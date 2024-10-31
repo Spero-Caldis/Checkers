@@ -40,12 +40,13 @@ class Board:
                     if row < 3:
                         self.board[row].append(Piece(row, col, WHITE))  
                     elif row > 4:
+
                         self.board[row].append(Piece(row, col, RED))
                     else:
                         self.board[row].append(0)
                 else:
                     self.board[row].append(0)
-    
+
     def draw(self, win):
         self.draw_squares(win)
         for row in range(ROWS):
@@ -83,7 +84,56 @@ class Board:
             moves.update(self._traverse_right(row +1, min(row+3, ROWS), 1, piece.color, right))
 
         return moves
+    
+    def transform(self, start_pos, row_col):
+        row = start_pos[0] + row_col[0] 
+        col = start_pos[1] + row_col[1]
+        return row, col
 
+    def is_on_board(row, col):
+        if row < 0 or row >= ROWS:
+            return False
+        if col < 0 or col >= COLS:
+            return False 
+        return True
+    
+    def in_skipped(current, skipped):
+        for piece in skipped:
+            if current.get_pos() == piece.get_pos():
+                return True
+            return False
+    
+    def _traverse(self, coords, color, direction, skipped = []):
+        moves = {}
+        transformations = []
+        
+        if direction <= 0:
+            transformations += [(-1,-1),(-1,1)]
+        if direction >= 0:
+            transformations += [(1,-1),(1,1)]
+        
+        for transformation in transformations:
+            row ,col = self.transform(coords, transformation)
+            if not self.is_on_board(row,col):
+                continue
+
+            current = self.board[row][col]
+
+            if current == 0:
+                if skipped:
+                    continue
+                else:
+                    moves[(row),(col)] = current
+
+            if current.get_color() == color or self.in_skipped(current, skipped):
+                continue
+
+            row, col = self.transform((row,col),transformation)
+            if self.board[row][col] == 0:
+                skipped += current
+                self._traverse((row ,col), color, direction, skipped)
+        return moves
+    
     def _traverse_left(self, start, stop, step, color, left, skipped=[]):
         moves = {}
         last = []
