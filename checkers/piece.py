@@ -23,6 +23,9 @@ class Piece:
     
     def get_color(self):
         return self.color
+    
+    def get_king(self):
+        return self.king
 
     def make_king(self):
         self.king = True
