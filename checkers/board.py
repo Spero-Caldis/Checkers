@@ -75,12 +75,12 @@ class Board:
         moves = dict()
         coords = piece.get_pos()
         color = piece.get_color()
-        if color == RED:
+        if piece.get_king():
+            direction = 0
+        elif color == RED:
             direction = -1
         elif color == WHITE:
             direction = 1
-        elif piece.get_king():
-            direction = 0
         # if piece.color == RED or piece.king:
         #     moves.update(self._traverse_left(row -1, max(row-3, -1), -1, piece.color, left))
         #     moves.update(self._traverse_right(row -1, max(row-3, -1), -1, piece.color, right))
@@ -96,18 +96,18 @@ class Board:
         col = start_pos[1] + row_col[1]
         return row, col
 
-    def is_on_board(row, col):
+    def is_on_board(self, row, col):
         if row < 0 or row >= ROWS:
             return False
         if col < 0 or col >= COLS:
             return False 
         return True
     
-    def in_skipped(current, skipped):
+    def in_skipped(self, current, skipped):
         for piece in skipped:
             if current.get_pos() == piece.get_pos():
                 return True
-            return False
+        return False
     
     def _traverse(self, coords, color, direction, skipped = []):
         moves = {}
@@ -130,19 +130,26 @@ class Board:
                     continue
                 else:
                     moves[(row),(col)] = current
+                    continue
 
-            if current.get_color() == color or self.in_skipped(current, skipped):
+            elif current.get_color() == color:
+                continue
+
+            elif self.in_skipped(current, skipped):
                 continue
 
             row, col = self.transform((row,col),transformation)
+            if not self.is_on_board(row,col):
+                continue
+            
             if self.board[row][col] == 0:
-                skipped += current
-                moves[(row, col)] = skipped
+                new_skipped = skipped + [current]
+                moves[(row, col)] = new_skipped
                 if row == ROWS - 1 or row == 0:
                     new_direction = 0
                 else:
                     new_direction = direction
-                moves.update(self._traverse((row ,col), color, new_direction, skipped))
+                moves.update(self._traverse((row ,col), color, new_direction, new_skipped))
         return moves
     
     # def _traverse_left(self, start, stop, step, color, left, skipped=[]):
