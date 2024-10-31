@@ -17,6 +17,7 @@ class Game:
         self.board = Board()
         self.turn = RED
         self.valid_moves = {}
+        self.skipped = False
 
     def winner(self):
         return self.board.winner()
@@ -25,6 +26,14 @@ class Game:
         self._init()
 
     def select(self, row, col):
+        if self.skipped:
+            self.skipped = False
+            if (row, col) in self.valid_moves:
+                self._move(row, col)
+            else:
+                self.change_turn()
+
+
         if self.selected:
             result = self._move(row, col)
             if not result:
@@ -36,7 +45,6 @@ class Game:
             self.selected = piece
             self.valid_moves = self.board.get_valid(piece)
             return True
-            
         return False
 
     def _move(self, row, col):
@@ -46,7 +54,11 @@ class Game:
             skipped = self.valid_moves[(row,col)]
             if skipped:
                 self.board.remove(skipped)
-            self.change_turn()
+                self.skipped = True
+                piece = self.board.get_piece(row, col)
+                self.valid_moves = self.board.get_valid(piece, self.skipped)
+            else:
+                self.change_turn()
         else:
             return False
         return True
