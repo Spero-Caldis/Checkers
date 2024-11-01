@@ -34,14 +34,14 @@ class Game:
             return
 
 
-        if self.selected:
+        if self.selected and (row,col) in self.valid_moves:
             result = self._move(row, col)
             if not result:
                 self.selected = None
                 self.select(row, col)
         
         piece = self.board.get_piece(row, col)
-        if piece != 0 and piece.color == self.turn:
+        if piece != 0 and piece.color == self.turn and self.board.get_valid(piece):
             self.selected = piece
             self.valid_moves = self.board.get_valid(piece)
             return True
