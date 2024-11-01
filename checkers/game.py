@@ -1,5 +1,5 @@
 import pygame
-from .constant import RED, WHITE, BLUE, SQUARE_SIZE
+from .constant import PLAYER_1, PLAYER_2, VALID, SQUARE_SIZE
 from .board import Board
 
 class Game:
@@ -15,7 +15,7 @@ class Game:
     def _init(self):
         self.selected = None
         self.board = Board()
-        self.turn = RED
+        self.turn = PLAYER_1
         self.valid_moves = {}
 
     def winner(self):
@@ -68,11 +68,11 @@ class Game:
     def draw_valid_moves(self, moves):
         for move in moves:
             row, col = move
-            pygame.draw.circle(self.win, BLUE, (col*SQUARE_SIZE + SQUARE_SIZE//2, row* SQUARE_SIZE + SQUARE_SIZE // 2), 15)
+            pygame.draw.circle(self.win, VALID, (col*SQUARE_SIZE + SQUARE_SIZE//2, row* SQUARE_SIZE + SQUARE_SIZE // 2), 15)
 
     def change_turn(self):
         self.valid_moves = {}
-        if self.turn == RED:
-            self.turn = WHITE
+        if self.turn == PLAYER_1:
+            self.turn = PLAYER_2
         else:
-            self.turn = RED
+            self.turn = PLAYER_1
